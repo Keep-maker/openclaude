@@ -1,4 +1,5 @@
 import { createServer } from "node:http";
+import { pathToFileURL } from "node:url";
 import { loadConfig, parseModelTarget, interpolateEnv } from "./config.js";
 import { listLocalOllamaModels } from "../cli/ollama.js";
 import { sanitizeToolIds, sanitizeThinkingBlocks } from "./sanitize.js";
@@ -280,7 +281,7 @@ export async function createRouter() {
   return { server, getConfig: () => cfg };
 }
 
-export async function startRouter(port) {
+export async function startRouter(port, host = process.env.OPENCLAUDE_HOST || "127.0.0.1") {
   // The router runs detached with no supervisor to restart it, so a single
   // unhandled error must not be fatal — otherwise every later request from
   // Claude Code fails with a connection error until the user restarts. Log and
@@ -296,14 +297,27 @@ export async function startRouter(port) {
   const listenPort = port ?? getConfig().port ?? 11436;
   await new Promise((resolve, reject) => {
     server.once("error", reject);
-    server.listen(listenPort, "127.0.0.1", () => resolve());
+    server.listen(listenPort, host, () => resolve());
   });
-  log(`listening on http://127.0.0.1:${listenPort}`);
-  return { server, port: listenPort };
+  const actualPort = server.address().port;
+  log(`listening on http://${host}:${actualPort}`);
+  return { server, port: actualPort };
 }
 
-const isMain = import.meta.url === `file://${process.argv[1]}`;
+const isMain = process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
 if (isMain) {
   const port = process.env.OPENCLAUDE_PORT ? Number(process.env.OPENCLAUDE_PORT) : undefined;
-  startRouter(port).catch((err) => { console.error(err); process.exit(1); });
+  startRouter(port).then(({ server }) => {
+    let stopping = false;
+    const shutdown = () => {
+      if (stopping) return;
+      stopping = true;
+      log("shutting down; allowing active requests up to 10s to finish");
+      const deadline = setTimeout(() => process.exit(1), 10_000);
+      deadline.unref();
+      server.close(() => { clearTimeout(deadline); process.exit(0); });
+    };
+    process.on("SIGTERM", shutdown);
+    process.on("SIGINT", shutdown);
+  }).catch((err) => { console.error(err); process.exit(1); });
 }

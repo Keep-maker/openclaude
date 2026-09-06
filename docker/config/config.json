@@ -1,0 +1,30 @@
+{
+  "port": 11436,
+  "defaultProvider": "claude",
+  "providers": {
+    "claude": {
+      "type": "anthropic-passthrough",
+      "baseUrl": "https://api.anthropic.com"
+    },
+    "ollama-local": {
+      "type": "ollama",
+      "baseUrl": "http://ollama:11434"
+    },
+    "ollama-cloud": {
+      "type": "ollama",
+      "baseUrl": "https://ollama.com",
+      "apiKey": "$OLLAMA_API_KEY"
+    },
+    "agnes": {
+      "type": "openai-compatible",
+      "baseUrl": "https://api.agnes-ai.cn/v1",
+      "apiKey": "$AGNES_API_KEY",
+      "chatPath": "chat/completions",
+      "timeoutMs": 60000,
+      "models": [
+        { "id": "agnes-2.5-flash", "display_name": "Agnes 2.5 Flash" },
+        { "id": "agnes-2.0-flash", "display_name": "Agnes 2.0 Flash" }
+      ]
+    }
+  }
+}

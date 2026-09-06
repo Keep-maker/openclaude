@@ -1,5 +1,7 @@
 # openclaude
 
+中文指南：[Agent 配置与使用](docs/01-Agent配置与使用.md) · [Docker Compose 部署与完整文件](docs/02-Docker-Compose部署.md) · [验证记录](docs/03-验证记录.md)
+
 [![npm version](https://img.shields.io/npm/v/@aliildan/openclaude.svg)](https://www.npmjs.com/package/@aliildan/openclaude)
 [![node](https://img.shields.io/node/v/@aliildan/openclaude.svg)](https://nodejs.org)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)

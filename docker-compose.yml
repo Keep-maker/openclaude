@@ -1,0 +1,75 @@
+services:
+  router:
+    image: ${OPENCLAUDE_IMAGE:-openclaude:local}
+    build:
+      context: .
+    init: true
+    restart: unless-stopped
+    environment:
+      OPENCLAUDE_HOST: 0.0.0.0
+      OPENCLAUDE_PORT: "11436"
+      OPENCLAUDE_HOME: /etc/openclaude
+      OPENCLAUDE_DISABLE_KEYCHAIN: "1"
+      OPENCLAUDE_DEBUG_STREAM: ${OPENCLAUDE_DEBUG_STREAM:-0}
+      AGNES_API_KEY: ${AGNES_API_KEY:-}
+      OLLAMA_API_KEY: ${OLLAMA_API_KEY:-}
+      NODE_OPTIONS: --max-old-space-size=384
+    ports:
+      - "127.0.0.1:${OPENCLAUDE_PUBLISH_PORT:-11436}:11436"
+    volumes:
+      - type: bind
+        source: ./docker/config
+        target: /etc/openclaude
+        read_only: true
+        bind:
+          create_host_path: false
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    read_only: true
+    tmpfs:
+      - /tmp:size=16m,mode=1777
+      - /home/node/.openclaude:size=16m,uid=1000,gid=1000,mode=0700
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 512m
+    pids_limit: 100
+    stop_grace_period: 15s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - backend
+
+  ollama:
+    image: ${OLLAMA_IMAGE:-ollama/ollama:0.14.0}
+    profiles: [ollama]
+    restart: unless-stopped
+    environment:
+      OLLAMA_HOST: 0.0.0.0:11434
+    volumes:
+      - ollama-data:/root/.ollama
+    healthcheck:
+      test: [CMD, ollama, list]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    mem_limit: ${OLLAMA_MEMORY_LIMIT:-2g}
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge
+
+volumes:
+  ollama-data:

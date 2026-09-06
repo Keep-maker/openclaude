@@ -1,0 +1,10 @@
+**
+!Dockerfile
+!package.json
+!bin/
+!bin/**
+!src/
+!src/**
+!docker/
+!docker/config/
+!docker/config/config.json

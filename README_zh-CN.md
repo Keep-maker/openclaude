@@ -1,5 +1,13 @@
 # openclaude Agnes / OpenAI-compatible 协议适配补丁
 
+## 完整中文使用文档
+
+1. [Agent 配置与使用说明](docs/01-Agent配置与使用.md)：配置字段、环境变量、CLI、子 Agent、HTTP 与工具调用约定。
+2. [Docker Compose 部署指南](docs/02-Docker-Compose部署.md)：完整文件内容、本机客户端接入、可选 Ollama、开发与生产维护。
+3. [验证记录](docs/03-验证记录.md)：测试与构建结果，以及尚未验证的范围。
+
+AI Agent 修改或使用本项目时，参见 [AGENTS.md](AGENTS.md)。
+
 这是 `Keep-maker/openclaude` 内置的第三种 provider（在原 openclaude 的 Anthropic / Ollama 之外新增 `openai-compatible`）：
 
 ```text

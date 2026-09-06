@@ -1,0 +1,8 @@
+services:
+  router:
+    restart: "no"
+    environment:
+      NODE_ENV: development
+    command: [node, --watch, src/router/index.js]
+    volumes:
+      - ./src:/app/src:ro
